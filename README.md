@@ -15,6 +15,7 @@ A small FastAPI service drives a logged-in Chromium browser through a Coursera c
   <img src="https://img.shields.io/badge/Workflow-n8n-EA4B71?logo=n8n&logoColor=white" alt="Workflow: n8n" />
   <img src="https://img.shields.io/badge/AI-Ollama-000000?logo=ollama&logoColor=white" alt="AI: Ollama" />
   <img src="https://img.shields.io/badge/Storage-Google%20Drive-4285F4?logo=googledrive&logoColor=white" alt="Storage: Google Drive" />
+  <img src="https://img.shields.io/badge/Runs-Locally-6E40C9" alt="Runs locally" />
   <img src="https://img.shields.io/badge/License-MIT-555555" alt="License: MIT" />
 </p>
 
@@ -29,6 +30,26 @@ A small FastAPI service drives a logged-in Chromium browser through a Coursera c
 </p>
 
 > Save a screenshot of the n8n canvas as `docs/n8n-workflow.png` and one of a generated note as `docs/notes-preview.png` to show them here.
+
+## Runs locally
+
+Everything except the final upload runs on your own computer. There's no hosted server, no paid AI API and no third-party account besides Coursera and Google Drive.
+
+| Part | Where it runs |
+| --- | --- |
+| Scraper API (FastAPI + Playwright) | Your machine, on `localhost:8000` |
+| Browser session | A headless Chromium on your machine, using the login saved in `auth.json` |
+| Workflow | Your own n8n instance, installed with npm or Docker |
+| Notes generator | Ollama, running a model on your own CPU or GPU |
+| Storage | Google Drive, the only step that leaves your machine |
+
+What this means:
+
+- **Private.** Your Coursera session cookies and lecture transcripts stay on your computer. The model writes notes offline, and only the finished Markdown files are uploaded.
+- **Free to run.** There are no per-request API costs, so you can generate notes for a whole course as often as you like.
+- **Under your control.** You choose the Ollama model, edit the prompt in the Markdown Notes Generator node, and can point the upload step somewhere else, such as a local folder, if you'd rather not use Drive.
+
+Keep `auth.json`, `coursera_profile/` and `.env` out of version control. They're already listed in `.gitignore`, because anyone holding `auth.json` can sign in as you.
 
 ## Architecture
 
@@ -146,16 +167,6 @@ http://localhost:8000/scrape/{{ $json.module }}/{{ $json.course }}
 ```
 
 If n8n runs in Docker, use `http://host.docker.internal:8000` instead of `localhost`. A module with many lectures can take a few minutes, so raise the node's timeout if requests are cut off.
-
-## Troubleshooting
-
-| Problem | Fix |
-| --- | --- |
-| `uvicorn` is not recognized | Activate the venv, or run `python -m uvicorn main:app` |
-| `NotImplementedError` when the browser starts | Start Uvicorn without `--reload` |
-| Requests hang for 30 seconds, then fail | Coursera changed its page layout and a selector in `main.py` no longer matches |
-| Redirected to the login page | Run `python login.py` again to refresh `auth.json` |
-| `IndexError` | The module number is higher than the number of modules in the course |
 
 ## License
 
