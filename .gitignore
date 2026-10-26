@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+venv/
+.env
+auth.json
+coursera_profile
