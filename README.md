@@ -225,6 +225,16 @@ Each run creates a folder named after `title` and uploads one `.md` note for eve
 | Redirected to the login page | Run `python login.py` again to refresh `auth.json` |
 | `IndexError` | The module number is higher than the number of modules in the course |
 
+## Disclaimer
+
+This project is for **personal, educational use only**.
+
+- **Follow Coursera's rules.** Coursera's [Terms of Use](https://www.coursera.org/about/terms) restrict automated access and scraping. You're responsible for making sure your use complies with them.
+- **Use your own account.** Only scrape courses you're enrolled in, with your own login. Don't share `auth.json` or use someone else's account.
+- **Don't redistribute course material.** Lecture transcripts and the notes generated from them are copyrighted by Coursera and its partner institutions. Keep them for your own study, and don't publish, share or sell them.
+- **Not affiliated with Coursera.** This project isn't endorsed by, sponsored by or connected to Coursera, Inc.
+- **Use at your own risk.** The software is provided as is, without warranty. The authors aren't responsible for account restrictions or any other consequences of using it.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
