@@ -6,8 +6,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -416,
-        0
+        -608,
+        320
       ],
       "id": "5c0467a6-dc0c-41ff-a114-ab4723886924",
       "name": "When clicking ‘Execute workflow’"
@@ -19,7 +19,7 @@
             {
               "id": "6c8ed68a-0ec3-486e-bb00-eaf0f6726ff4",
               "name": "link",
-              "value": "learn/ai-machine-learning-apply-build-solve",
+              "value": "https://www.coursera.org/organizations/manuel-s-enverga-university-foundation/learn/ai-machine-learning-apply-build-solve",
               "type": "string"
             },
             {
@@ -31,7 +31,7 @@
             {
               "id": "05dbf211-c53d-42f1-81a4-6c9bf88cb0f7",
               "name": "title",
-              "value": "Machine Learning",
+              "value": "Meta",
               "type": "string"
             }
           ]
@@ -41,25 +41,11 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        -192,
-        0
+        16,
+        128
       ],
       "id": "33dcf21d-8313-419e-bfda-7ab07d8e11f8",
       "name": "Configurations"
-    },
-    {
-      "parameters": {
-        "url": "=http://host.docker.internal:8000/scrape/{{ $json.module_number }}/{{ $json.link }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.5,
-      "position": [
-        32,
-        -96
-      ],
-      "id": "9a3d88ae-546f-4923-b2d7-413bb86b05ad",
-      "name": "Scraper"
     },
     {
       "parameters": {
@@ -68,8 +54,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        240,
-        -96
+        448,
+        32
       ],
       "id": "be2d3e1e-725d-4473-bf9b-4f31a0acf895",
       "name": "Transcription Compiler"
@@ -81,8 +67,8 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        736,
-        0
+        944,
+        128
       ],
       "id": "2d296df9-da13-454f-9d74-7c6a777859f7",
       "name": "Loop Over Items"
@@ -110,7 +96,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        1008,
+        1200,
         144
       ],
       "id": "fa1304a9-9a1e-46e8-9feb-3a57ea859f4f",
@@ -119,13 +105,13 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=You are a markdown notes generator, you read transcriptions and convert it into informational markdown notes.\n\nGoal: \n1. Read the transcriptions.\n2. Follow the format guide.\n3. Create a markdown notes based on the transcription.\n4. Follow only the transcriptions and don't add or delete any information from the transcriptions.\n\nInput:\nTitle of the topic: {{ $json.title }}\nTranscriptions: {{ $json.transcription }}\n\nFORMAT GUIDELINES:\n\n# Title\n## Sub sections\n\n- Lists\n- \n\n1. Numbered Lists\n2. \n\n`` Codes/Program\n\nreturn: { \"note\": markdown note generated }\n\n\n\n",
+        "text": "=You are a study-notes writer. Convert a lecture transcript into clear, well-organized Markdown notes.\n\nRules:\n- Use ONLY information from the transcript. Do not invent facts, examples, or code.\n- Include code only if it is explicitly shown or dictated in the transcript.\n- Do not describe the video itself (skip phrases like \"in this video\", \"on screen\", \"let's select\").\n- Do not repeat the same information in multiple sections.\n- Write code identifiers in their proper form (e.g. \"show form invalid message\" -> `showFormInvalidMessage`, \"validate form\" -> `validateForm()`).\n- Output only the Markdown note: no JSON, no preamble, no closing remarks.\n\nFormat:\n# title\n## <Section per main topic>\n- Bullet points for facts and details\n1. Numbered lists for steps or sequences\n`inline code` for identifiers, ```code blocks``` only for code from the transcript\n## Key Takeaways\n- 3 to 5 bullets summarizing the most important points\nInput:\nTitle of the topic: {{ $json.title }}\nTranscriptions: {{ $json.transcription }}\n\n\n\n\n\n",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1232,
+        1424,
         144
       ],
       "id": "d597ee78-ae87-4a8a-8c6e-129846b180e2",
@@ -133,13 +119,15 @@
     },
     {
       "parameters": {
-        "model": "gemma3:4b",
-        "options": {}
+        "model": "qwen3:8b",
+        "options": {
+          "think": false
+        }
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        1232,
+        1424,
         352
       ],
       "id": "fe29f6d6-411e-4799-9ede-8ef3a9b79a11",
@@ -162,7 +150,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        1520,
+        1712,
         144
       ],
       "id": "d47e8aed-97b1-4688-9aae-9df6d7da9dee",
@@ -191,8 +179,8 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        32,
-        80
+        240,
+        208
       ],
       "id": "8f6cfc54-118b-4d55-81d9-3dae162ce0a4",
       "name": "Create folder",
@@ -210,8 +198,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        512,
-        0
+        720,
+        128
       ],
       "id": "2cc8df55-6876-4ae5-b12b-75a32ed6fc2d",
       "name": "Merge"
@@ -233,11 +221,232 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        240,
-        80
+        448,
+        208
       ],
       "id": "0d40aa37-859a-4959-960a-30345d0ea856",
       "name": "Set Folder"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e9ef62ee-17ce-4e36-a8c8-3ee81d3e643e",
+              "name": "mode",
+              "value": "single",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -400,
+        320
+      ],
+      "id": "43d5e6ea-74f6-40fd-b705-3b9a3e1cfe77",
+      "name": "Set Mode"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "503942c5-bdf6-43e8-9d4a-7c178becf3ee",
+              "name": "module_link",
+              "value": "https://www.coursera.org/learn/advanced-programming-in-swift/lecture/LV0do/recap-programming-fundamentals-in-swift",
+              "type": "string"
+            },
+            {
+              "id": "c5c68440-3098-4f2f-b145-42cb4ecdba35",
+              "name": "title",
+              "value": "Meta",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        16,
+        480
+      ],
+      "id": "c15cd0d7-6c6a-4d76-97b8-0181e9d5e4fa",
+      "name": "Single Configuration"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://host.docker.internal:8000/scrape_multiple/{{ $json.module_number }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "link",
+              "value": "={{ $json.link }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        240,
+        32
+      ],
+      "id": "9a3d88ae-546f-4923-b2d7-413bb86b05ad",
+      "name": "Multiple Modules Scraper"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/scraper_single",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "link",
+              "value": "={{ $json.module_link }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        240,
+        480
+      ],
+      "id": "8f236517-ea5f-4f20-8af6-f907b8ed8649",
+      "name": "Single Module Scraper"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a study-notes writer. Convert a lecture transcript into clear, well-organized Markdown notes.\n\nRules:\n- Use ONLY information from the transcript. Do not invent facts, examples, or code.\n- Include code only if it is explicitly shown or dictated in the transcript.\n- Do not describe the video itself (skip phrases like \"in this video\", \"on screen\", \"let's select\").\n- Do not repeat the same information in multiple sections.\n- Write code identifiers in their proper form (e.g. \"show form invalid message\" -> `showFormInvalidMessage`, \"validate form\" -> `validateForm()`).\n- Output only the Markdown note: no JSON, no preamble, no closing remarks.\n\nFormat:\n# title\n## <Section per main topic>\n- Bullet points for facts and details\n1. Numbered lists for steps or sequences\n`inline code` for identifiers, ```code blocks``` only for code from the transcript\n## Key Takeaways\n- 3 to 5 bullets summarizing the most important points\n\nTranscript:\n{{ $json.data }}\n/no_think",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        432,
+        480
+      ],
+      "id": "962c2493-2dc5-4c71-ae1a-bc6dfc824db1",
+      "name": "Markdown Notes Generator1"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:8b",
+        "options": {
+          "think": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        432,
+        656
+      ],
+      "id": "02c34b88-46ec-4f2a-9606-e48c87c4f437",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WlEt6I9Wt7JVEtaq",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "output",
+        "options": {
+          "fileName": "={{ $('Single Configuration').item.json.title }}.md"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        480
+      ],
+      "id": "fbd800f2-182e-44fe-8ba7-c77bb37f1e62",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.mode }}",
+                    "rightValue": "multiple",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "dd695229-0e63-411c-a18c-a4e2f8e70114"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "6fff7536-6fd5-4489-958a-753ed1809353",
+                    "leftValue": "={{ $json.mode }}",
+                    "rightValue": "single",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -208,
+        320
+      ],
+      "id": "ce56a070-be24-4546-afe7-74aac8861088",
+      "name": "Switch"
     },
     {
       "parameters": {
@@ -257,11 +466,42 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        1696,
+        1888,
         144
       ],
       "id": "02b3532f-a98a-47d5-a013-433fcb070a02",
-      "name": "Upload file",
+      "name": "Multiple Upload",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mY4cOdZun8t8P11A",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1qjn99vrnTOCZlx1cmU75__3Jb2LHwyJw",
+          "mode": "list",
+          "cachedResultName": "Generated Markdown Notes",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1qjn99vrnTOCZlx1cmU75__3Jb2LHwyJw"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1008,
+        480
+      ],
+      "id": "f4c24e97-438c-41b7-ab07-80d90dea3829",
+      "name": "Single Upload",
       "credentials": {
         "googleDriveOAuth2Api": {
           "id": "mY4cOdZun8t8P11A",
@@ -276,7 +516,7 @@
       "main": [
         [
           {
-            "node": "Configurations",
+            "node": "Set Mode",
             "type": "main",
             "index": 0
           }
@@ -287,23 +527,12 @@
       "main": [
         [
           {
-            "node": "Scraper",
+            "node": "Multiple Modules Scraper",
             "type": "main",
             "index": 0
           },
           {
             "node": "Create folder",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Scraper": {
-      "main": [
-        [
-          {
-            "node": "Transcription Compiler",
             "type": "main",
             "index": 0
           }
@@ -370,7 +599,7 @@
       "main": [
         [
           {
-            "node": "Upload file",
+            "node": "Multiple Upload",
             "type": "main",
             "index": 0
           }
@@ -410,7 +639,102 @@
         ]
       ]
     },
-    "Upload file": {
+    "Set Mode": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Single Configuration": {
+      "main": [
+        [
+          {
+            "node": "Single Module Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Multiple Modules Scraper": {
+      "main": [
+        [
+          {
+            "node": "Transcription Compiler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Single Module Scraper": {
+      "main": [
+        [
+          {
+            "node": "Markdown Notes Generator1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Markdown Notes Generator1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown Notes Generator1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Single Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Configurations",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Single Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Multiple Upload": {
       "main": [
         [
           {
@@ -428,7 +752,7 @@
     "binaryMode": "separate",
     "availableInMCP": true
   },
-  "versionId": "e2e8187f-178c-4843-8948-e63bc7ac27e1",
+  "versionId": "21708f06-7e42-448b-b332-68348172d022",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "9303a4f42b081e045dba0b8758beea9a612f0d29c4bfcc885a093891ebc720d1"

@@ -1,21 +1,21 @@
 from fastapi import FastAPI
 from playwright.async_api import async_playwright
+from pydantic import BaseModel
 import asyncio
-import os
-from dotenv import load_dotenv
-
 asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 app = FastAPI()
-@app.get("/scrape/{module_num}/{coursera_link:path}")
-async def scrape(coursera_link: str, module_num: int):
+
+class ScraperRequest(BaseModel):
+    link: str
+
+@app.post("/scrape_multiple/{module_num}")
+async def scrape_multiple(coursera_link: ScraperRequest, module_num: int):
     async with async_playwright() as pw:
-        load_dotenv()
         open_module = module_num
-        link = os.getenv("COURSERA_LINK")
         browser = await pw.chromium.launch()
         context = await browser.new_context(viewport={"width": 1280, "height": 800}, storage_state="auth.json")
         page = await context.new_page()
-        main_url = f"{link}/{coursera_link}"
+        main_url = coursera_link.link
         await page.goto(f"{main_url}#authMode=login")
         await page.locator(".cds-113.cds-button-disableElevation.cds-button-primary.css-1374c0a").click()
         modules = page.locator('li[data-testid="rc-WeekNavigationItem"]')
@@ -68,6 +68,22 @@ async def scrape(coursera_link: str, module_num: int):
 async def test():
     return "Successfull Test"
 
-@app.get("/test/{module}/{coursera_path:path}")
-async def check_path(module: str, coursera_path: str):
-    return { "module": module, "path": coursera_path }
+@app.post("/scraper_single")
+async def scrape_single(module_link: ScraperRequest):
+    async with async_playwright() as pw:
+        link = module_link.link
+        browser = await pw.chromium.launch()
+        context = await browser.new_context(viewport={"width": 1280, "height": 800}, storage_state="auth.json")
+        page = await context.new_page()
+        await page.goto(f"{link}#authMode=login")
+        modules = page.locator(".css-1psltl0").first
+        await modules.first.wait_for(state="attached", timeout=30000)
+
+        await page.locator('button[data-testid="item-tool-panel-button-transcript"]').click()
+        transcription_list = await page.locator(".css-mlsl36").all()
+        extracted_list = []
+        for phrase in transcription_list:
+            text = await phrase.inner_text()
+            print(text)
+            extracted_list.append(text)
+        return ' '.join(extracted_list)
