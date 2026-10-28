@@ -265,18 +265,6 @@ To take notes on several modules, run it once per module and change `module_numb
 
 4. Click **Execute workflow**. It uploads one note named `title.md` to the folder set in **Single Upload**.
 
-## Troubleshooting
-
-| Problem | Fix |
-| --- | --- |
-| `uvicorn` is not recognized | Activate the venv, or run `python -m uvicorn main:app` |
-| `NotImplementedError` when the browser starts | Start Uvicorn without `--reload` |
-| Nothing runs after Set Mode | `mode` must be exactly `multiple` or `single`, in lowercase |
-| Requests hang for 30 seconds, then fail | Check you pasted the right kind of link for the mode. If it's right, Coursera changed its page layout and a selector in `main.py` no longer matches |
-| Redirected to the login page | Run `python login.py` again to refresh `auth.json` |
-| `IndexError` | The module number is higher than the number of modules in the course |
-| The note starts with the model's reasoning | Turn off **Think** in the Ollama node, or keep `/no_think` at the end of the prompt |
-
 ## Disclaimer
 
 This project is for **personal, educational use only**.
