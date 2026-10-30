@@ -38,29 +38,25 @@ async def scrape_multiple(coursera_link: ScraperRequest, module_num: int):
             await page.goto(topic_list[x])
             await page.wait_for_load_state("domcontentloaded")
             title = page.locator(".css-1bdse57")
-            print(await title.inner_text())
-            transcript_list.append({await title.inner_text(): []})
+            
+            title_name = await title.inner_text()
+            print(title_name)
 
             if await page.get_by_role("dialog").filter(has_text="You've completed today's goal").is_visible():
                 await page.get_by_role("button", name="Continue learning").click()
 
             if not opened:
-                transcript = page.locator('button[data-testid="item-tool-panel-button-transcript"]')
-                await transcript.wait_for(state="visible", timeout=30000)
-                await transcript.scroll_into_view_if_needed()
-                await page.wait_for_timeout(1000)
-                await transcript.click()
+                await page.locator('button[data-testid="item-tool-panel-button-files"]').click()
                 opened = True
-        
-            phrases = page.locator('div.phrases')
-            await phrases.first.wait_for(state="attached", timeout=30000)
-            subs = phrases.locator('.rc-Phrase.css-nhymx3')
-            await subs.first.wait_for(state="attached", timeout=30000)
-            print(f"Sub Counts: {await subs.count()}")
-            for phrase in await subs.locator('span').all():
-                text = await phrase.inner_text()
-                transcript_list[x][await title.inner_text()].append(text.replace("\u200b", "").strip())
-                print(await phrase.inner_text())
+
+            link = page.locator('a[data-click-key="open_course_home.focused_lex_video_item.click.focused_lex_download_transcript"]')
+            
+            await link.wait_for()
+            href = await link.get_attribute("href")
+            response = await page.request.get(f"https://www.coursera.org{href}")
+            text = (await response.text()).strip()
+            transcript_list.append({ title_name: text })
+            print(transcript_list)
         await browser.close()
     return transcript_list
 
@@ -79,11 +75,16 @@ async def scrape_single(module_link: ScraperRequest):
         modules = page.locator(".css-1psltl0").first
         await modules.first.wait_for(state="attached", timeout=30000)
 
-        await page.locator('button[data-testid="item-tool-panel-button-transcript"]').click()
-        transcription_list = await page.locator(".css-mlsl36").all()
-        extracted_list = []
-        for phrase in transcription_list:
-            text = await phrase.inner_text()
-            print(text)
-            extracted_list.append(text)
-        return ' '.join(extracted_list)
+        if await page.get_by_role("dialog").filter(has_text="You've completed today's goal").is_visible():
+            await page.get_by_role("button", name="Continue learning").click()
+
+        await page.locator('button[data-testid="item-tool-panel-button-files"]').click()
+        link = page.locator('a[data-click-key="open_course_home.focused_lex_video_item.click.focused_lex_download_transcript"]')
+
+        await link.wait_for()
+        href = await link.get_attribute("href")
+        response = await page.request.get(f"https://www.coursera.org{href}")
+        text = (await response.text()).strip()
+        print(text)
+        await browser.close()
+        return text
