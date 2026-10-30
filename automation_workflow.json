@@ -19,7 +19,7 @@
             {
               "id": "6c8ed68a-0ec3-486e-bb00-eaf0f6726ff4",
               "name": "link",
-              "value": "https://www.coursera.org/organizations/manuel-s-enverga-university-foundation/learn/ai-machine-learning-apply-build-solve",
+              "value": "https://www.coursera.org/organizations/manuel-s-enverga-university-foundation/learn/advanced-programming-in-swift",
               "type": "string"
             },
             {
@@ -49,7 +49,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var trans = []\nfor (const item of $input.all()) {\n  for (const [title, lines] of Object.entries(item.json)) {\n    trans.push({\n      json: {\n        transcriptions: \n        {title,\n        text: lines.map(x => x.trim()).join(\" \")}\n      }\n    })\n  }\n}\n\n\nreturn trans;"
+        "jsCode": "var trans = []\nfor (const item of $input.all()) {\n  for (const [title, lines] of Object.entries(item.json)) {\n    trans.push({\n      json: {\n        transcriptions: \n        {title,\n        text: lines}\n      }\n    })\n  }\n}\n\n\nreturn trans;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -234,7 +234,7 @@
             {
               "id": "e9ef62ee-17ce-4e36-a8c8-3ee81d3e643e",
               "name": "mode",
-              "value": "single",
+              "value": "multiple",
               "type": "string"
             }
           ]
@@ -257,7 +257,7 @@
             {
               "id": "503942c5-bdf6-43e8-9d4a-7c178becf3ee",
               "name": "module_link",
-              "value": "https://www.coursera.org/learn/advanced-programming-in-swift/lecture/LV0do/recap-programming-fundamentals-in-swift",
+              "value": "https://www.coursera.org/learn/ai-machine-learning-apply-build-solve/lecture/6EnFz/introduction-to-artificial-intelligence",
               "type": "string"
             },
             {
@@ -752,7 +752,7 @@
     "binaryMode": "separate",
     "availableInMCP": true
   },
-  "versionId": "21708f06-7e42-448b-b332-68348172d022",
+  "versionId": "e12595ab-537e-4f1e-8233-40221c5cdb46",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "9303a4f42b081e045dba0b8758beea9a612f0d29c4bfcc885a093891ebc720d1"
