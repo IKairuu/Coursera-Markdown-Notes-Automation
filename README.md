@@ -5,7 +5,7 @@
 <p align="center"><i>Watch the lecture once. Keep the notes forever.</i></p>
 
 <p align="center">
-A small FastAPI service drives a logged-in Chromium browser through Coursera and reads lecture transcripts, either a whole module at a time or one lecture at a time. An n8n workflow calls that service, hands each transcript to a local Ollama model that writes the study notes, and uploads the Markdown files to Google Drive.
+A small FastAPI service drives a logged-in Chromium browser through Coursera and downloads each lecture's official transcript file, either a whole module at a time or one lecture at a time. An n8n workflow calls that service, hands each transcript to a local Ollama model that writes the study notes, and uploads the Markdown files to Google Drive.
 </p>
 
 <p align="center">
@@ -47,12 +47,26 @@ Keep `auth.json` and `coursera_profile/` out of version control. They're already
 
 ## Two modes
 
-| Mode | What it scrapes | Link to copy | Output |
+| Mode | What it fetches | Link to copy | Output |
 | --- | --- | --- | --- |
 | `multiple` | Every lecture in one module of a course | The **course page** | A new Drive folder with one note per lecture |
 | `single` | One lecture (topic) | The **lecture video page** | One note in your notes folder |
 
 Use `multiple` to take notes on a whole week of a course at once. Use `single` when you only need one topic, or to redo a single lecture's notes.
+
+## How it works
+
+The API doesn't copy text off the page. For each lecture it fetches the same `.txt` transcript file you'd get from the lecture's **Download transcript** link.
+
+1. Open the lecture page in a headless Chromium that's logged in with `auth.json`, and close the "You've completed today's goal" pop-up if it shows up.
+2. Open the lecture's **Downloads** tab and find the **Download transcript** link.
+3. Read the link's address. Coursera signs it for your session.
+4. Fetch the file with Playwright's `page.request.get`, which sends your logged-in cookies along.
+5. Return the text in memory. Nothing is saved to disk.
+
+In multiple mode the API first opens the course page, collects every lecture link in the chosen module, and repeats these steps for each one.
+
+Fetching the file is more reliable than reading the on-screen transcript panel. You get the full, clean transcript, it doesn't depend on how the panel is laid out, and you skip scrolling through it line by line.
 
 ## Architecture
 
@@ -73,7 +87,7 @@ n8n: Manual trigger → Set Mode → Switch
          → Markdown Notes Generator (Ollama) → Convert to File → Single Upload
 ```
 
-The scraper opens Coursera in a headless Chromium that's logged in with your saved `auth.json`.
+The API opens Coursera in a headless Chromium that's logged in with your saved `auth.json`.
 
 | Layer | Tech |
 | --- | --- |
@@ -88,14 +102,15 @@ The scraper opens Coursera in a headless Chromium that's logged in with your sav
 - Two modes: a whole module in one run, or a single lecture
 - Paste the Coursera link exactly as it appears in your browser, with no config files to edit
 - Works with personal accounts and with organization or university accounts
-- Reuses a saved Coursera login, so the scraper never types your password
+- Uses Coursera's own transcript file, the same one behind the **Download transcript** link, so the text comes out clean and complete
+- Reuses a saved Coursera login, so the API never types your password
 - Notes are written by a local model, so transcripts never leave your machine before they reach Drive
 
 ## Project structure
 
 ```
 coursera_scraper/
-├── main.py                   # FastAPI app and the Playwright scrapers
+├── main.py                   # FastAPI app that finds and fetches the transcripts
 ├── login.py                  # One-time manual login that saves auth.json
 ├── automation_workflow.json  # n8n workflow export, ready to import
 ├── docs/                     # README images
@@ -117,13 +132,13 @@ You need Python 3.12 or newer, Google Chrome, n8n and Ollama.
    playwright install chromium
    ```
 
-2. **Log in to Coursera before you use the workflow.** The scraper can only open lectures with a saved login, so do this first:
+2. **Log in to Coursera before you use the workflow.** The API can only open lectures with a saved login, so do this first:
 
    ```powershell
    python login.py
    ```
 
-   A Chrome window opens. Sign in to your Coursera account (or your organization's login page), then go back to the terminal and press Enter. Your session is saved to `auth.json`. Run it again whenever Coursera logs you out or the scraper ends up on the login page.
+   A Chrome window opens. Sign in to your Coursera account (or your organization's login page), then go back to the terminal and press Enter. Your session is saved to `auth.json`. Run it again whenever Coursera logs you out or the API ends up on the login page.
 
 3. Start the API from this folder, so it can find `auth.json`:
 
@@ -174,7 +189,7 @@ Ollama runs the AI model that writes the notes, right on your computer.
 
 ## API
 
-Both scrape routes take a JSON body with the full Coursera link:
+Both transcript routes take a JSON body with the full Coursera link:
 
 ```json
 { "link": "https://www.coursera.org/..." }
@@ -182,19 +197,20 @@ Both scrape routes take a JSON body with the full Coursera link:
 
 | Method | Route | Description |
 | --- | --- | --- |
-| POST | `/scrape_multiple/{module_num}` | Scrape every lecture in module `module_num` (counting from 1). `link` is the **course page** |
-| POST | `/scraper_single` | Scrape one lecture. `link` is the **lecture video page** |
+| POST | `/scrape_multiple/{module_num}` | Fetch the transcript of every lecture in module `module_num` (counting from 1). `link` is the **course page** |
+| POST | `/scraper_single` | Fetch the transcript of one lecture. `link` is the **lecture video page** |
 | GET | `/test` | Health check |
 
-`/scrape_multiple` returns a list with one object per lecture, mapping its title to the transcript lines:
+`/scrape_multiple` returns a list with one object per lecture, mapping its title to the full transcript text:
 
 ```json
 [
-  { "<lecture title>": ["<transcript line>", "<transcript line>", "..."] }
+  { "<lecture title>": "<full transcript text>" },
+  { "<lecture title>": "<full transcript text>" }
 ]
 ```
 
-`/scraper_single` returns the lecture's whole transcript as one string.
+`/scraper_single` returns the lecture's full transcript text as one string.
 
 ## Importing the n8n workflow
 
@@ -240,7 +256,7 @@ Type the value in lowercase. The Switch compares it exactly, so `Single` or `mul
    | Field | Example | Meaning |
    | --- | --- | --- |
    | `link` | `https://www.coursera.org/learn/<course-name>` | The course page link |
-   | `module_number` | `1` | Module to scrape, counting from 1 |
+   | `module_number` | `1` | Module to fetch, counting from 1 |
    | `title` | `Machine Learning` | Name of the Drive folder created for this run |
 
 4. Click **Execute workflow**. It creates a folder named after `title` and uploads one `.md` note for every lecture in that module.
@@ -270,7 +286,7 @@ To take notes on several modules, run it once per module and change `module_numb
 This project is for **personal, educational use only**.
 
 - **Follow Coursera's rules.** Coursera's [Terms of Use](https://www.coursera.org/about/terms) restrict automated access and scraping. You're responsible for making sure your use complies with them.
-- **Use your own account.** Only scrape courses you're enrolled in, with your own login. Don't share `auth.json` or use someone else's account.
+- **Use your own account.** Only fetch transcripts for courses you're enrolled in, with your own login. Don't share `auth.json` or use someone else's account.
 - **Don't redistribute course material.** Lecture transcripts and the notes generated from them are copyrighted by Coursera and its partner institutions. Keep them for your own study, and don't publish, share or sell them.
 - **Not affiliated with Coursera.** This project isn't endorsed by, sponsored by or connected to Coursera, Inc.
 - **Use at your own risk.** The software is provided as is, without warranty. The authors aren't responsible for account restrictions or any other consequences of using it.
