@@ -20,6 +20,11 @@ async def scrape_multiple(coursera_link: ScraperRequest, module_num: int):
         await page.locator(".cds-113.cds-button-disableElevation.cds-button-primary.css-1374c0a").click()
         modules = page.locator('li[data-testid="rc-WeekNavigationItem"]')
         await modules.first.wait_for(state="attached", timeout=30000)
+
+        await page.wait_for_timeout(5000)
+        if await page.get_by_role("dialog").filter(has_text="You've completed today's goal").is_visible():
+            await page.get_by_role("button", name="Continue learning").click()
+
         module_list = []
         for module in await modules.all():
             module_list.append(f'https://www.coursera.org{await module.locator('a').get_attribute('href')}')
@@ -75,6 +80,7 @@ async def scrape_single(module_link: ScraperRequest):
         modules = page.locator(".css-1psltl0").first
         await modules.first.wait_for(state="attached", timeout=30000)
 
+        await page.wait_for_timeout(5000)
         if await page.get_by_role("dialog").filter(has_text="You've completed today's goal").is_visible():
             await page.get_by_role("button", name="Continue learning").click()
 
